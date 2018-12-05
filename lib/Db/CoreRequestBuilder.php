@@ -40,6 +40,7 @@ use OCA\Social\Model\ActivityPub\Document;
 use OCA\Social\Model\ActivityPub\Follow;
 use OCA\Social\Model\ActivityPub\Image;
 use OCA\Social\Model\ActivityPub\Person;
+use OCA\Social\Service\ActivityService;
 use OCA\Social\Service\ConfigService;
 use OCA\Social\Service\MiscService;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -347,6 +348,8 @@ class CoreRequestBuilder {
 
 
 	/**
+	 * // TODO: make it nicer
+	 *
 	 * @param IQueryBuilder $qb
 	 * @param string $recipient
 	 * @param bool $asAuthor
@@ -360,12 +363,39 @@ class CoreRequestBuilder {
 
 		if ($asAuthor === true) {
 			$func = $qb->func();
-			$orX->add(
+			$andXAuthor = $expr->andX();
+			$andXAuthor->add(
 				$expr->eq(
 					$func->lower('attributed_to'),
 					$func->lower($qb->createNamedParameter($recipient))
 				)
 			);
+			$andXAuthor->add(
+				$expr->notLike(
+					'to_array',
+					$qb->createNamedParameter(
+						'%"' . $dbConn->escapeLikeParameter(ActivityService::TO_PUBLIC) . '"%'
+					)
+				)
+			);
+			$andXAuthor->add(
+				$expr->notLike(
+					'cc',
+					$qb->createNamedParameter(
+						'%"' . $dbConn->escapeLikeParameter(ActivityService::TO_PUBLIC) . '"%'
+					)
+				)
+			);
+			$andXAuthor->add(
+				$expr->notLike(
+					'bcc',
+					$qb->createNamedParameter(
+						'%"' . $dbConn->escapeLikeParameter(ActivityService::TO_PUBLIC) . '"%'
+					)
+				)
+			);
+
+			$orX->add($andXAuthor);
 		}
 
 		$orX->add($expr->eq('to', $qb->createNamedParameter($recipient)));
