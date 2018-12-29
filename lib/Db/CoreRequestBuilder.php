@@ -63,7 +63,7 @@ class CoreRequestBuilder {
 	const TABLE_CACHE_ACTORS = 'social_cache_actors';
 	const TABLE_CACHE_DOCUMENTS = 'social_cache_documents';
 
-	
+
 	/** @var IDBConnection */
 	protected $dbConnection;
 
@@ -131,6 +131,17 @@ class CoreRequestBuilder {
 	 */
 	protected function limitToIdString(IQueryBuilder &$qb, string $id) {
 		$this->limitToDBField($qb, 'id', $id, false);
+	}
+
+
+	/**
+	 * Limit the request to the Type
+	 *
+	 * @param IQueryBuilder $qb
+	 * @param string $type
+	 */
+	protected function limitToType(IQueryBuilder &$qb, string $type) {
+		$this->limitToDBField($qb, 'id', $type, false);
 	}
 
 

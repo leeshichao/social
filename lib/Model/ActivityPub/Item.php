@@ -56,6 +56,9 @@ class Item {
 	private $url = '';
 
 	/** @var string */
+	private $attributedTo = '';
+
+	/** @var string */
 	private $summary = '';
 
 	/** @var InstancePath[] */
@@ -162,6 +165,25 @@ class Item {
 	 */
 	public function setUrl(string $url): Item {
 		$this->url = $url;
+
+		return $this;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getAttributedTo(): string {
+		return $this->attributedTo;
+	}
+
+	/**
+	 * @param string $attributedTo
+	 *
+	 * @return Item
+	 */
+	public function setAttributedTo(string $attributedTo): Item {
+		$this->attributedTo = $attributedTo;
 
 		return $this;
 	}

@@ -31,6 +31,7 @@ namespace OCA\Social\Db;
 
 
 use DateTime;
+use Exception;
 use OCA\Social\Exceptions\NoteNotFoundException;
 use OCA\Social\Model\ActivityPub\ACore;
 use OCA\Social\Model\ActivityPub\Actor\Person;
@@ -122,6 +123,7 @@ class NotesRequest extends NotesRequestBuilder {
 
 		$qb = $this->getNotesSelectSql();
 		$this->limitToIdString($qb, $id);
+		$this->limitToType($qb, Note::TYPE);
 
 		$cursor = $qb->execute();
 		$data = $cursor->fetch();
@@ -131,7 +133,14 @@ class NotesRequest extends NotesRequestBuilder {
 			throw new NoteNotFoundException('Post not found');
 		}
 
-		return $this->parseNotesSelectSql($data);
+		try {
+			/** @var Note $note */
+			$note = $this->parseNotesSelectSql($data);
+		} catch (Exception $e) {
+			throw new NoteNotFoundException('Malformed Post');
+		}
+
+		return $note;
 	}
 
 
@@ -143,6 +152,7 @@ class NotesRequest extends NotesRequestBuilder {
 	public function countNotesFromActorId(string $actorId): int {
 		$qb = $this->countNotesSelectSql();
 		$this->limitToAttributedTo($qb, $actorId);
+		$this->limitToType($qb, Note::TYPE);
 
 		$cursor = $qb->execute();
 		$data = $cursor->fetch();
@@ -167,13 +177,17 @@ class NotesRequest extends NotesRequestBuilder {
 		$qb = $this->getNotesSelectSql();
 
 		$this->joinFollowing($qb, $actor);
+		$this->limitToType($qb, Note::TYPE);
 		$this->limitPaginate($qb, $since, $limit);
 		$this->leftJoinCacheActors($qb, 'attributed_to');
 
 		$notes = [];
 		$cursor = $qb->execute();
 		while ($data = $cursor->fetch()) {
-			$notes[] = $this->parseNotesSelectSql($data);
+			try {
+				$notes[] = $this->parseNotesSelectSql($data);
+			} catch (Exception $e) {
+			}
 		}
 		$cursor->closeCursor();
 
@@ -205,7 +219,10 @@ class NotesRequest extends NotesRequestBuilder {
 		$notes = [];
 		$cursor = $qb->execute();
 		while ($data = $cursor->fetch()) {
-			$notes[] = $this->parseNotesSelectSql($data);
+			try {
+				$notes[] = $this->parseNotesSelectSql($data);
+			} catch (Exception $e) {
+			}
 		}
 		$cursor->closeCursor();
 
@@ -227,6 +244,7 @@ class NotesRequest extends NotesRequestBuilder {
 	public function getStreamAccount(string $actorId, int $since = 0, int $limit = 5): array {
 		$qb = $this->getNotesSelectSql();
 		$this->limitPaginate($qb, $since, $limit);
+		$this->limitToType($qb, Note::TYPE);
 		$this->limitToAttributedTo($qb, $actorId);
 		$this->leftJoinCacheActors($qb, 'attributed_to');
 		$this->limitToRecipient($qb, ACore::CONTEXT_PUBLIC);
@@ -234,7 +252,10 @@ class NotesRequest extends NotesRequestBuilder {
 		$notes = [];
 		$cursor = $qb->execute();
 		while ($data = $cursor->fetch()) {
-			$notes[] = $this->parseNotesSelectSql($data);
+			try {
+				$notes[] = $this->parseNotesSelectSql($data);
+			} catch (Exception $e) {
+			}
 		}
 		$cursor->closeCursor();
 
@@ -257,6 +278,7 @@ class NotesRequest extends NotesRequestBuilder {
 		$qb = $this->getNotesSelectSql();
 		$this->limitPaginate($qb, $since, $limit);
 
+		$this->limitToType($qb, Note::TYPE);
 		$this->limitToRecipient($qb, $actor->getId(), true);
 		$this->filterToRecipient($qb, ACore::CONTEXT_PUBLIC);
 		$this->filterToRecipient($qb, $actor->getFollowers());
@@ -266,7 +288,10 @@ class NotesRequest extends NotesRequestBuilder {
 		$notes = [];
 		$cursor = $qb->execute();
 		while ($data = $cursor->fetch()) {
-			$notes[] = $this->parseNotesSelectSql($data);
+			try {
+				$notes[] = $this->parseNotesSelectSql($data);
+			} catch (Exception $e) {
+			}
 		}
 		$cursor->closeCursor();
 
@@ -288,6 +313,7 @@ class NotesRequest extends NotesRequestBuilder {
 	): array {
 		$qb = $this->getNotesSelectSql();
 		$this->limitPaginate($qb, $since, $limit);
+		$this->limitToType($qb, Note::TYPE);
 		if ($localOnly) {
 			$this->limitToLocal($qb, true);
 		}
@@ -298,7 +324,10 @@ class NotesRequest extends NotesRequestBuilder {
 		$notes = [];
 		$cursor = $qb->execute();
 		while ($data = $cursor->fetch()) {
-			$notes[] = $this->parseNotesSelectSql($data);
+			try {
+				$notes[] = $this->parseNotesSelectSql($data);
+			} catch (Exception $e) {
+			}
 		}
 		$cursor->closeCursor();
 
@@ -311,6 +340,7 @@ class NotesRequest extends NotesRequestBuilder {
 	 */
 	public function deleteNoteById(string $id) {
 		$qb = $this->getNotesDeleteSql();
+		$this->limitToType($qb, Note::TYPE);
 		$this->limitToIdString($qb, $id);
 
 		$qb->execute();

@@ -48,6 +48,7 @@ use OCA\Social\Interfaces\Activity\UndoInterface;
 use OCA\Social\Interfaces\Activity\UpdateInterface;
 use OCA\Social\Interfaces\Actor\PersonInterface;
 use OCA\Social\Interfaces\IActivityPubInterface;
+use OCA\Social\Interfaces\Internal\SocialAppNotificationInterface;
 use OCA\Social\Interfaces\Object\NoteInterface;
 use OCA\Social\Model\ActivityPub\ACore;
 use OCA\Social\Model\ActivityPub\Activity\Accept;
@@ -65,6 +66,7 @@ use OCA\Social\Model\ActivityPub\Actor\Person;
 use OCA\Social\Model\ActivityPub\Object\Document;
 use OCA\Social\Model\ActivityPub\Object\Image;
 use OCA\Social\Model\ActivityPub\Object\Note;
+use OCA\Social\Model\ActivityPub\Internal\SocialAppNotification;
 use OCA\Social\Model\ActivityPub\Object\Tombstone;
 use OCA\Social\Service\ConfigService;
 use OCP\AppFramework\QueryException;
@@ -123,6 +125,9 @@ class AP {
 	/** @var UpdateInterface */
 	public $updateInterface;
 
+	/** @var NotificationInterface */
+	public $notificationInterface;
+
 	/** @var ConfigService */
 	public $configService;
 
@@ -151,10 +156,11 @@ class AP {
 			$ap->deleteInterface = \OC::$server->query(DeleteInterface::class);
 			$ap->followInterface = \OC::$server->query(FollowInterface::class);
 			$ap->likeInterface = \OC::$server->query(LikeInterface::class);
+			$ap->noteInterface = \OC::$server->query(NoteInterface::class);
+			$ap->notificationInterface = \OC::$server->query(SocialAppNotificationInterface::class);
+			$ap->personInterface = \OC::$server->query(PersonInterface::class);
 			$ap->rejectInterface = \OC::$server->query(RejectInterface::class);
 			$ap->removeInterface = \OC::$server->query(RemoveInterface::class);
-			$ap->personInterface = \OC::$server->query(PersonInterface::class);
-			$ap->noteInterface = \OC::$server->query(NoteInterface::class);
 			$ap->undoInterface = \OC::$server->query(UndoInterface::class);
 			$ap->updateInterface = \OC::$server->query(UpdateInterface::class);
 
@@ -162,6 +168,8 @@ class AP {
 
 			AP::$activityPub = $ap;
 		} catch (QueryException $e) {
+			\OC::$server->getLogger()
+						->logException($e);
 		}
 	}
 
@@ -254,6 +262,9 @@ class AP {
 			case Note::TYPE:
 				return new Note();
 
+			case SocialAppNotification::TYPE:
+				return new SocialAppNotification();
+
 			case Person::TYPE:
 				return new Person();
 
@@ -327,6 +338,10 @@ class AP {
 
 			case Note::TYPE:
 				$service = $this->noteInterface;
+				break;
+
+			case SocialAppNotification::TYPE:
+				$service = $this->notificationInterface;
 				break;
 
 			case Person::TYPE:

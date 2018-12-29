@@ -51,9 +51,6 @@ class Note extends ACore implements JsonSerializable {
 	private $content = '';
 
 	/** @var string */
-	private $attributedTo = '';
-
-	/** @var string */
 	private $inReplyTo = '';
 
 	/** @var bool */
@@ -96,24 +93,6 @@ class Note extends ACore implements JsonSerializable {
 		return $this;
 	}
 
-
-	/**
-	 * @return string
-	 */
-	public function getAttributedTo(): string {
-		return $this->attributedTo;
-	}
-
-	/**
-	 * @param string $attributedTo
-	 *
-	 * @return Note
-	 */
-	public function setAttributedTo(string $attributedTo): Note {
-		$this->attributedTo = $attributedTo;
-
-		return $this;
-	}
 
 	/**
 	 * @return string
@@ -207,7 +186,6 @@ class Note extends ACore implements JsonSerializable {
 		parent::import($data);
 
 		$this->setInReplyTo($this->validate(ACore::AS_ID, 'inReplyTo', $data, ''));
-		$this->setAttributedTo($this->validate(ACore::AS_ID, 'attributedTo', $data, ''));
 		$this->setSensitive($this->getBool('sensitive', $data, false));
 		$this->setConversation($this->validate(ACore::AS_ID, 'conversation', $data, ''));
 		$this->setContent($this->get('content', $data, ''));
@@ -224,9 +202,7 @@ class Note extends ACore implements JsonSerializable {
 		$dTime = new DateTime($this->get('published_time', $data, 'yesterday'));
 
 		$this->setContent($this->validate(self::AS_STRING, 'content', $data, ''));;
-
 		$this->setPublishedTime($dTime->getTimestamp());
-		$this->setAttributedTo($this->validate(self::AS_ID, 'attributed_to', $data, ''));
 		$this->setInReplyTo($this->validate(self::AS_ID, 'in_reply_to', $data));
 	}
 
@@ -241,7 +217,6 @@ class Note extends ACore implements JsonSerializable {
 			parent::jsonSerialize(),
 			[
 				'content' => $this->getContent(),
-				'attributedTo' => $this->getUrlSocial() . $this->getAttributedTo(),
 				'inReplyTo' => $this->getInReplyTo(),
 				'sensitive' => $this->isSensitive(),
 				'conversation' => $this->getConversation()
