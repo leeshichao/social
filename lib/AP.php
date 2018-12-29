@@ -125,7 +125,7 @@ class AP {
 	/** @var UpdateInterface */
 	public $updateInterface;
 
-	/** @var NotificationInterface */
+	/** @var SocialAppNotificationInterface */
 	public $notificationInterface;
 
 	/** @var ConfigService */
