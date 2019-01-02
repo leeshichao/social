@@ -33,6 +33,7 @@ namespace OCA\Social\Interfaces\Activity;
 
 use daita\MySmallPhpTools\Exceptions\MalformedArrayException;
 use Exception;
+use OCA\Social\AP;
 use OCA\Social\Db\FollowsRequest;
 use OCA\Social\Exceptions\FollowDoesNotExistException;
 use OCA\Social\Exceptions\InvalidOriginException;
@@ -44,11 +45,13 @@ use OCA\Social\Exceptions\RequestException;
 use OCA\Social\Exceptions\SocialAppConfigException;
 use OCA\Social\Exceptions\UnknownItemException;
 use OCA\Social\Interfaces\IActivityPubInterface;
+use OCA\Social\Interfaces\Internal\SocialAppNotificationInterface;
 use OCA\Social\Model\ActivityPub\ACore;
 use OCA\Social\Model\ActivityPub\Activity\Accept;
 use OCA\Social\Model\ActivityPub\Activity\Follow;
 use OCA\Social\Model\ActivityPub\Activity\Reject;
 use OCA\Social\Model\ActivityPub\Activity\Undo;
+use OCA\Social\Model\ActivityPub\Internal\SocialAppNotification;
 use OCA\Social\Model\InstancePath;
 use OCA\Social\Service\ActivityService;
 use OCA\Social\Service\CacheActorService;
@@ -125,7 +128,13 @@ class FollowInterface implements IActivityPubInterface {
 
 			$this->activityService->request($accept);
 			$this->followsRequest->accepted($follow);
+
+			$this->generateNotification($follow);
 		} catch (Exception $e) {
+			$this->miscService->log(
+				'exception while confirmFollowRequest: ' . get_class($e) . ' - ' . $e->getMessage(),
+				2
+			);
 		}
 	}
 
@@ -217,6 +226,26 @@ class FollowInterface implements IActivityPubInterface {
 	 * @param ACore $item
 	 */
 	public function delete(ACore $item) {
+	}
+
+
+	/**
+	 * @param Follow $follow
+	 *
+	 * @throws UnknownItemException
+	 */
+	private function generateNotification(Follow $follow) {
+		/** @var SocialAppNotificationInterface $notificationInterface */
+		$notificationInterface =
+			AP::$activityPub->getInterfaceFromType(SocialAppNotification::TYPE);
+
+		$notification = new SocialAppNotification();
+		$notification->setId($follow->getId() . '/notification')
+					 ->setSummary('{actor} is following you')
+					 ->setTo($follow->getObjectId())
+					 ->setLocal(true)
+					 ->setAttributedTo($follow->getActorId());
+		$notificationInterface->save($notification);
 	}
 
 }
