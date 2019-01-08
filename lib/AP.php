@@ -40,7 +40,8 @@ use OCA\Social\Interfaces\Activity\AddInterface;
 use OCA\Social\Interfaces\Activity\BlockInterface;
 use OCA\Social\Interfaces\Activity\CreateInterface;
 use OCA\Social\Interfaces\Activity\DeleteInterface;
-use OCA\Social\Interfaces\Activity\FollowInterface;
+use OCA\Social\Interfaces\Object\AnnounceInterface;
+use OCA\Social\Interfaces\Object\FollowInterface;
 use OCA\Social\Interfaces\Activity\LikeInterface;
 use OCA\Social\Interfaces\Activity\RejectInterface;
 use OCA\Social\Interfaces\Activity\RemoveInterface;
@@ -55,7 +56,8 @@ use OCA\Social\Model\ActivityPub\Activity\Add;
 use OCA\Social\Model\ActivityPub\Activity\Block;
 use OCA\Social\Model\ActivityPub\Activity\Create;
 use OCA\Social\Model\ActivityPub\Activity\Delete;
-use OCA\Social\Model\ActivityPub\Activity\Follow;
+use OCA\Social\Model\ActivityPub\Object\Announce;
+use OCA\Social\Model\ActivityPub\Object\Follow;
 use OCA\Social\Model\ActivityPub\Activity\Like;
 use OCA\Social\Model\ActivityPub\Activity\Reject;
 use OCA\Social\Model\ActivityPub\Activity\Remove;
@@ -89,6 +91,9 @@ class AP {
 
 	/** @var AddInterface */
 	public $addInterface;
+
+	/** @var AddInterface */
+	public $announceInterface;
 
 	/** @var BlockInterface */
 	public $blockInterface;
@@ -146,6 +151,7 @@ class AP {
 		try {
 			$ap->acceptInterface = \OC::$server->query(AcceptInterface::class);
 			$ap->addInterface = \OC::$server->query(AddInterface::class);
+			$ap->announceInterface = \OC::$server->query(AnnounceInterface::class);
 			$ap->blockInterface = \OC::$server->query(BlockInterface::class);
 			$ap->createInterface = \OC::$server->query(CreateInterface::class);
 			$ap->deleteInterface = \OC::$server->query(DeleteInterface::class);
@@ -236,6 +242,10 @@ class AP {
 				$item = new Add();
 				break;
 
+			case Announce::TYPE:
+				$item = new Announce();
+				break;
+
 			case Block::TYPE:
 				$item = new Block();
 				break;
@@ -323,6 +333,10 @@ class AP {
 
 			case Add::TYPE:
 				$service = $this->addInterface;
+				break;
+
+			case Announce::TYPE:
+				$service = $this->announceInterface;
 				break;
 
 			case Block::TYPE:
