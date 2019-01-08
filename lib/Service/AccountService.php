@@ -38,6 +38,7 @@ use OCA\Social\Db\FollowsRequest;
 use OCA\Social\Db\NotesRequest;
 use OCA\Social\Exceptions\AccountAlreadyExistsException;
 use OCA\Social\Exceptions\ActorDoesNotExistException;
+use OCA\Social\Exceptions\ItemUnknownException;
 use OCA\Social\Exceptions\SocialAppConfigException;
 use OCA\Social\Exceptions\UrlCloudException;
 use OCA\Social\Model\ActivityPub\Actor\Person;
@@ -160,6 +161,7 @@ class AccountService {
 	 * @throws NoUserException
 	 * @throws SocialAppConfigException
 	 * @throws UrlCloudException
+	 * @throws ItemUnknownException
 	 */
 	public function getActorFromUserId(string $userId, bool $create = false): Person {
 		$this->miscService->confirmUserId($userId);
@@ -194,6 +196,7 @@ class AccountService {
 	 * @throws NoUserException
 	 * @throws SocialAppConfigException
 	 * @throws UrlCloudException
+	 * @throws ItemUnknownException
 	 */
 	public function createActor(string $userId, string $username) {
 
@@ -234,6 +237,7 @@ class AccountService {
 	 *
 	 * @throws SocialAppConfigException
 	 * @throws UrlCloudException
+	 * @throws ItemUnknownException
 	 */
 	public function cacheLocalActorByUsername(string $username, bool $refresh = false) {
 		try {
