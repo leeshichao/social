@@ -28,7 +28,7 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\Social\Interfaces\Activity;
+namespace OCA\Social\Interfaces\Object;
 
 
 use daita\MySmallPhpTools\Exceptions\MalformedArrayException;

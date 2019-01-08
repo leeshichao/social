@@ -28,7 +28,7 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\Social\Model\ActivityPub\Activity;
+namespace OCA\Social\Model\ActivityPub\Object;
 
 
 use JsonSerializable;
