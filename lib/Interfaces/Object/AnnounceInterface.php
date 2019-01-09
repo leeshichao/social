@@ -63,12 +63,11 @@ class AnnounceInterface implements IActivityPubInterface {
 	 * @param ACore $item
 	 */
 	public function processIncomingRequest(ACore $item) {
-		if (!$item->gotObject()) {
+		if ($item->getObjectId() === '' && !$item->gotObject()) {
 			return;
 		}
-		$object = $item->getObject();
 
-		$this->miscService->log('##  ' . json_encode($object));
+//		$object = $item->getObject();
 
 //		try {
 //			$service = AP::$activityPub->getInterfaceForItem($item->getObject());

@@ -58,6 +58,7 @@ class CoreRequestBuilder {
 
 	const TABLE_SERVER_ACTORS = 'social_server_actors';
 	const TABLE_SERVER_NOTES = 'social_server_notes';
+	const TABLE_SERVER_OBJECTS = 'social_server_objects';
 	const TABLE_SERVER_FOLLOWS = 'social_server_follows';
 
 	const TABLE_CACHE_ACTORS = 'social_cache_actors';
